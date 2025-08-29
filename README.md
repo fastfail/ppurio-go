@@ -1,7 +1,7 @@
 # ppurio-go
 뿌리오(ppurio.com) 문자서비스 API 비공식 Go 패키지입니다.
 
-### Installation
+## Installation
 ```sh
 go get github.com/fastfail/ppurio-go
 ```

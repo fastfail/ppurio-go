@@ -109,7 +109,6 @@ func (p *Ppurio) TextMessage(messageParam *MessageParams) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal param: %w", err)
 	}
-	fmt.Println("param:", string(param))
 	resp, err := p.doRequest("POST", URI_MESSAGE, param)
 	if err != nil {
 		return "", err

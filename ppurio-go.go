@@ -25,6 +25,7 @@ type Ppurio struct {
 	accessToken       string
 	accessTokenExpire time.Time
 	client            *http.Client
+	disabled          bool
 }
 
 type ErrorResponse struct {
@@ -59,6 +60,7 @@ var ErrorInvalidMessageKey = errors.New("메시지키가 유효하지 않음")
 var ErrorTooLateToCancelReservation = errors.New("예약 취소 가능 시간이 지남")
 var ErrorAlreadySendingMessage = errors.New("메시지가 이미 발송중인 상태")
 var ErrorCantCancelReservation = errors.New("예약을 취소할 수 없음")
+var ErrorDisabled = errors.New("초기인증 실패")
 
 func init() {
 	ppurioErrors = map[int]error{
@@ -91,25 +93,28 @@ func NewPpurio(ppurioAccount, accessKey, from string) (*Ppurio, error) {
 	}
 	err := p.getAccessToken()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get access token: %w", err)
+		p.disabled = true
+		return p, fmt.Errorf("failed to get access token: %w", err)
 	}
 	return p, nil
 }
 func NewPpurioWithTimeout(ppurioAccount, accessKey, from string, timeout time.Duration) (*Ppurio, error) {
 	p, err := NewPpurio(ppurioAccount, accessKey, from)
 	if err != nil {
-		return nil, err
+		return p, err
 	}
 	p.client = &http.Client{Timeout: timeout}
 	return p, nil
 }
 
 func (p *Ppurio) TextMessage(messageParam *MessageParams) (string, error) {
+	if p.disabled {
+		return "", ErrorDisabled
+	}
 	param, err := json.Marshal(&messageParam)
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal param: %w", err)
 	}
-	fmt.Println("param:", string(param))
 	resp, err := p.doRequest("POST", URI_MESSAGE, param)
 	if err != nil {
 		return "", err

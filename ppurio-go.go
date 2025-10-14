@@ -113,7 +113,7 @@ func (p *Ppurio) TextMessage(messageParam *MessageParams) (string, error) {
 	}
 	param, err := json.Marshal(&messageParam)
 	if err != nil {
-		return "", fmt.Errorf("failed  to marshal param: %w", err)
+		return "", fmt.Errorf("failed to marshal param: %w", err)
 	}
 	resp, err := p.doRequest("POST", URI_MESSAGE, param)
 	if err != nil {
